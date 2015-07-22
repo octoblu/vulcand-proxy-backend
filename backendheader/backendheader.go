@@ -68,7 +68,7 @@ func (c *BackendMiddleware) NewHandler(next http.Handler) (http.Handler, error) 
 
 // String() will be called by loggers inside Vulcand and command line tool.
 func (c *BackendMiddleware) String() string {
-	return fmt.Sprintf("Adding X-Backend-Server")
+	return fmt.Sprintf("Adding X-Backend-Server, addHeader=%v", c.addHeader)
 }
 
 // FromOther Will be called by Vulcand when engine or API will read the middleware from the serialized format.
@@ -82,14 +82,14 @@ func FromOther(c BackendMiddleware) (plugin.Middleware, error) {
 
 // FromCli constructs the middleware from the command line
 func FromCli(c *cli.Context) (plugin.Middleware, error) {
-	return New(c.Bool("add-backend-header"))
+	return New(c.Bool("addHeader"))
 }
 
 // CliFlags will be used by Vulcand construct help and CLI command for the vctl command
 func CliFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name:  "add-backend-header",
+			Name:  "addHeader",
 			Usage: "if provided, add X-Backend-Server to the response",
 		},
 	}
