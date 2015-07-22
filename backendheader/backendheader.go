@@ -1,4 +1,4 @@
-package backend
+package backendheader
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/mailgun/vulcand/plugin"
 )
 
-const Type = "backend"
+const Type = "backendheader"
 
 func GetSpec() *plugin.MiddlewareSpec {
 	return &plugin.MiddlewareSpec{

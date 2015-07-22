@@ -1,7 +1,6 @@
-package backend
+package backendheader
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 
