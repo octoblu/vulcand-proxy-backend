@@ -84,6 +84,7 @@ func FromOther(c BackendHeaderMiddleware) (plugin.Middleware, error) {
 
 // FromCli constructs the middleware from the command line
 func FromCli(c *cli.Context) (plugin.Middleware, error) {
+	fmt.Println("%v, addHeader=%v", c.String("headerName"), c.Bool("addHeader"))
 	return New(c.Bool("addHeader"), c.String("headerName"))
 }
 
