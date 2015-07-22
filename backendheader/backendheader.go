@@ -34,7 +34,6 @@ type BackendHeaderHandler struct {
 
 // This function will be called each time the request hits the location with this middleware activated
 func (h *BackendHeaderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ServeHTTP", h.AddHeader, h.HeaderName)
 	if h.AddHeader {
 		w.Header().Set(h.HeaderName, GetLocalIP())
 	}
@@ -60,14 +59,12 @@ func GetLocalIP() string {
 
 // This function is optional but handy, used to check input parameters when creating new middlewares
 func New(addHeader bool, headerName string) (*BackendHeaderMiddleware, error) {
-	fmt.Println("FromOther", addHeader, headerName)
 	return &BackendHeaderMiddleware{AddHeader: addHeader, HeaderName: headerName}, nil
 }
 
 // This function is important, it's called by vulcand to create a new handler from the middleware config and put it into the
 // middleware chain. Note that we need to remember 'next' handler to call
 func (c *BackendHeaderMiddleware) NewHandler(next http.Handler) (http.Handler, error) {
-	fmt.Println("NewHandler", c.AddHeader, c.HeaderName)
 	return &BackendHeaderHandler{next: next, AddHeader: c.AddHeader, HeaderName: c.HeaderName}, nil
 }
 
@@ -82,15 +79,12 @@ func (c *BackendHeaderMiddleware) String() string {
 // The first and the only parameter should be the struct itself, no pointers and other variables.
 // Function should return middleware interface and error in case if the parameters are wrong.
 func FromOther(c BackendHeaderMiddleware) (plugin.Middleware, error) {
-	fmt.Println("FromOther", c.AddHeader, c.HeaderName)
 	return New(c.AddHeader, c.HeaderName)
 }
 
 // FromCli constructs the middleware from the command line
 func FromCli(c *cli.Context) (plugin.Middleware, error) {
-	f, err := New(c.Bool("addHeader"), c.String("headerName"))
-	fmt.Println("FromCli", f.AddHeader, f.HeaderName)
-	return f, err
+	return New(c.Bool("addHeader"), c.String("headerName"))
 }
 
 // CliFlags will be used by Vulcand construct help and CLI command for the vctl command
