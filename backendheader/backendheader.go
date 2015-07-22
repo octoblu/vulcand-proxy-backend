@@ -21,21 +21,21 @@ func GetSpec() *plugin.MiddlewareSpec {
 }
 
 type BackendHeaderMiddleware struct {
-	addHeader bool
-	headerName string
+	AddHeader bool
+	HeaderName string
 }
 
 // Auth middleware handler
 type BackendHeaderHandler struct {
 	next http.Handler
-	addHeader bool
-	headerName string
+	AddHeader bool
+	HeaderName string
 }
 
 // This function will be called each time the request hits the location with this middleware activated
 func (h *BackendHeaderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if h.addHeader {
-		w.Header().Set(h.headerName, GetLocalIP())
+	if h.AddHeader {
+		w.Header().Set(h.HeaderName, GetLocalIP())
 	}
 	h.next.ServeHTTP(w, r)
 }
@@ -59,18 +59,18 @@ func GetLocalIP() string {
 
 // This function is optional but handy, used to check input parameters when creating new middlewares
 func New(addHeader bool, headerName string) (*BackendHeaderMiddleware, error) {
-	return &BackendHeaderMiddleware{addHeader: addHeader, headerName: headerName}, nil
+	return &BackendHeaderMiddleware{AddHeader: addHeader, HeaderName: headerName}, nil
 }
 
 // This function is important, it's called by vulcand to create a new handler from the middleware config and put it into the
 // middleware chain. Note that we need to remember 'next' handler to call
 func (c *BackendHeaderMiddleware) NewHandler(next http.Handler) (http.Handler, error) {
-	return &BackendHeaderHandler{next: next, addHeader: c.addHeader, headerName: c.headerName}, nil
+	return &BackendHeaderHandler{next: next, AddHeader: c.AddHeader, HeaderName: c.HeaderName}, nil
 }
 
 // String() will be called by loggers inside Vulcand and command line tool.
 func (c *BackendHeaderMiddleware) String() string {
-	return fmt.Sprintf("%v, addHeader=%v", c.headerName, c.addHeader)
+	return fmt.Sprintf("%v, addHeader=%v", c.HeaderName, c.AddHeader)
 }
 
 // FromOther Will be called by Vulcand when engine or API will read the middleware from the serialized format.
@@ -79,12 +79,11 @@ func (c *BackendHeaderMiddleware) String() string {
 // The first and the only parameter should be the struct itself, no pointers and other variables.
 // Function should return middleware interface and error in case if the parameters are wrong.
 func FromOther(c BackendHeaderMiddleware) (plugin.Middleware, error) {
-	return New(c.addHeader, c.headerName)
+	return New(c.AddHeader, c.HeaderName)
 }
 
 // FromCli constructs the middleware from the command line
 func FromCli(c *cli.Context) (plugin.Middleware, error) {
-	fmt.Println("%v, addHeader=%v", c.String("headerName"), c.Bool("addHeader"))
 	return New(c.Bool("addHeader"), c.String("headerName"))
 }
 
