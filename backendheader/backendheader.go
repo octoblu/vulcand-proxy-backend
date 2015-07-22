@@ -59,7 +59,7 @@ func GetLocalIP() string {
 
 // This function is optional but handy, used to check input parameters when creating new middlewares
 func New(addHeader bool, headerName string) (*BackendHeaderMiddleware, error) {
-	return &BackendHeaderMiddleware{addHeader: addHeader, headerName: "X-Backend-Server"}, nil
+	return &BackendHeaderMiddleware{addHeader: addHeader, headerName: headerName}, nil
 }
 
 // This function is important, it's called by vulcand to create a new handler from the middleware config and put it into the
