@@ -26,13 +26,13 @@ type BackendMiddleware struct {
 
 // Auth middleware handler
 type BackendHandler struct {
-	cfg BackendMiddleware
 	next http.Handler
+	addHeader bool
 }
 
 // This function will be called each time the request hits the location with this middleware activated
 func (h *BackendHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if h.cfg.addHeader {
+	if h.addHeader {
 		w.Header().Set("X-Backend-Server", GetLocalIP())
 	}
 	h.next.ServeHTTP(w, r)
@@ -63,7 +63,7 @@ func New(addHeader bool) (*BackendMiddleware, error) {
 // This function is important, it's called by vulcand to create a new handler from the middleware config and put it into the
 // middleware chain. Note that we need to remember 'next' handler to call
 func (c *BackendMiddleware) NewHandler(next http.Handler) (http.Handler, error) {
-	return &BackendHandler{next: next, cfg: *c}, nil
+	return &BackendHandler{next: next, addHeader: c.addHeader}, nil
 }
 
 // String() will be called by loggers inside Vulcand and command line tool.
