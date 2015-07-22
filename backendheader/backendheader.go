@@ -20,18 +20,18 @@ func GetSpec() *plugin.MiddlewareSpec {
 	}
 }
 
-type BackendMiddleware struct {
+type BackendHeaderMiddleware struct {
 	addHeader bool
 }
 
 // Auth middleware handler
-type BackendHandler struct {
+type BackendHeaderHandler struct {
 	next http.Handler
 	addHeader bool
 }
 
 // This function will be called each time the request hits the location with this middleware activated
-func (h *BackendHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *BackendHeaderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h.addHeader {
 		w.Header().Set("X-Backend-Server", GetLocalIP())
 	}
@@ -56,18 +56,18 @@ func GetLocalIP() string {
 }
 
 // This function is optional but handy, used to check input parameters when creating new middlewares
-func New(addHeader bool) (*BackendMiddleware, error) {
-	return &BackendMiddleware{addHeader}, nil
+func New(addHeader bool) (*BackendHeaderMiddleware, error) {
+	return &BackendHeaderMiddleware{addHeader}, nil
 }
 
 // This function is important, it's called by vulcand to create a new handler from the middleware config and put it into the
 // middleware chain. Note that we need to remember 'next' handler to call
-func (c *BackendMiddleware) NewHandler(next http.Handler) (http.Handler, error) {
-	return &BackendHandler{next: next, addHeader: c.addHeader}, nil
+func (c *BackendHeaderMiddleware) NewHandler(next http.Handler) (http.Handler, error) {
+	return &BackendHeaderHandler{next: next, addHeader: c.addHeader}, nil
 }
 
 // String() will be called by loggers inside Vulcand and command line tool.
-func (c *BackendMiddleware) String() string {
+func (c *BackendHeaderMiddleware) String() string {
 	return fmt.Sprintf("Adding X-Backend-Server, addHeader=%v", c.addHeader)
 }
 
@@ -76,7 +76,7 @@ func (c *BackendMiddleware) String() string {
 // fail to register this middleware.
 // The first and the only parameter should be the struct itself, no pointers and other variables.
 // Function should return middleware interface and error in case if the parameters are wrong.
-func FromOther(c BackendMiddleware) (plugin.Middleware, error) {
+func FromOther(c BackendHeaderMiddleware) (plugin.Middleware, error) {
 	return New(c.addHeader)
 }
 
